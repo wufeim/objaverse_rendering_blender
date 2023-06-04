@@ -30,26 +30,30 @@ def render_objects(object_ids, distance, azimuth, elevation):
     imgs = []
     for model_id in object_ids.split(','):
         model_id = model_id.strip()
-        temp_dir = f'temp_{model_id}'
-        os.makedirs(temp_dir, exist_ok=True)
+        try:
+            temp_dir = f'temp_{model_id}'
+            os.makedirs(temp_dir, exist_ok=True)
 
-        model_path = os.path.join(temp_dir, f"{model_id}.glb")
-        if not os.path.isfile(model_path):
-            wget.download(get_objaverse_url_from_uid(model_id), out=temp_dir)
+            model_path = os.path.join(temp_dir, f"{model_id}.glb")
+            if not os.path.isfile(model_path):
+                wget.download(get_objaverse_url_from_uid(model_id), out=temp_dir)
 
-        cmd = (
-            f'export DISPLAY=:0.{0} && '
-            f'blender-3.2.2-linux-x64/blender -b -P render_script.py -- '
-            f'--object_path {model_path} --engine CYCLES '
-            f'--output_dir {temp_dir} --distance {distance} --azimuth {azimuth} '
-            f'--elevation {elevation}'
-        )
-        print(cmd)
-        os.system(cmd)
+            cmd = (
+                f'export DISPLAY=:0.{0} && '
+                f'blender-3.2.2-linux-x64/blender -b -P render_script.py -- '
+                f'--object_path {model_path} --engine CYCLES '
+                f'--output_dir {temp_dir} --distance {distance} --azimuth {azimuth} '
+                f'--elevation {elevation}'
+            )
+            print(cmd)
+            os.system(cmd)
 
-        for i in range(1):
-            imgs.append(Image.open(os.path.join(temp_dir, f"{i:03d}.png")))
-        shutil.rmtree(temp_dir)
+            for i in range(1):
+                imgs.append(Image.open(os.path.join(temp_dir, f"{i:03d}.png")))
+            shutil.rmtree(temp_dir)
+        except:
+            raise gr.Error(f'Error when processing model {model_id}')
+            imgs.append(Image.fromarray(np.zeros((256, 256, 3), dtype=np.uint8)))
     return imgs
 
 
