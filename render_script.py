@@ -187,8 +187,8 @@ def save_images(object_file: str) -> None:
         cam_constraint.target = empty
 
         camera_dist = args.distance
-        theta = all_theta[i] + args.azimuth
-        phi = all_phi[i] - args.elevation
+        theta = all_theta[i] + args.azimuth / 180.0 * np.pi
+        phi = all_phi[i] - args.elevation / 180.0 * np.pi
         camera_rotation = all_rot[i]
 
         phi = phi % (2 * np.pi)
